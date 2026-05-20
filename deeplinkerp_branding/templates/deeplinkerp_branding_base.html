@@ -1,0 +1,10 @@
+{% extends "templates/base.html" %}
+
+{% block favicon %}
+{{ super() }}
+<link rel="icon" type="image/png" href="/assets/deeplinkerp_branding/logo/tab_logo.png">
+<link rel="apple-touch-icon" href="/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png">
+<link rel="manifest" href="/assets/deeplinkerp_branding/manifest.webmanifest">
+<meta name="application-name" content="Deeplinkerp">
+<meta name="apple-mobile-web-app-title" content="Deeplinkerp">
+{% endblock %}

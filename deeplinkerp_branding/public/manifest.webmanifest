@@ -1,0 +1,23 @@
+{
+	"name": "Deeplinkerp",
+	"short_name": "Deeplinkerp",
+	"start_url": "/login",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
+	"icons": [
+		{
+			"src": "/assets/deeplinkerp_branding/logo/tab_logo.png",
+			"sizes": "any",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png",
+			"sizes": "any",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	]
+}

@@ -1,0 +1,7 @@
+.page-card-head .app-logo {
+	width: 42px;
+	height: 42px;
+	max-height: 42px;
+	border-radius: var(--border-radius-md);
+	object-fit: cover;
+}
