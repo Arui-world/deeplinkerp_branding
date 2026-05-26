@@ -6,6 +6,9 @@ BRAND_LOGO_URL = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png"
 ERP_NEXT_NAME = "ERPNext"
 FRAPPE_FRAMEWORK_NAME = "Frappe Framework"
 DLP_FRAMEWORK_NAME = "DLP Framework"
+FRAMEWORK_ICON_NAME = "Framework"
+DLP_FRAMEWORK_IDX = -1
+HIDDEN_FRAMEWORK_IDX = -2
 PRODUCT_APP_NAMES = {"ai_assistant", "mes_integration"}
 PRODUCT_APP_BY_TITLE = {
 	"AI Assistant": "ai_assistant",
@@ -51,8 +54,7 @@ def apply_deeplinkerp_settings_branding():
 	if frappe.db.exists("Desktop Icon", "Deeplinkerp Branding"):
 		frappe.db.set_value("Desktop Icon", "Deeplinkerp Branding", "hidden", 1, update_modified=False)
 
-	if frappe.db.exists("Desktop Icon", "Framework"):
-		frappe.db.set_value("Desktop Icon", "Framework", "idx", -1, update_modified=False)
+	apply_framework_desktop_icon_branding()
 
 	copy_erpnext_settings_sidebar_items()
 
@@ -93,6 +95,57 @@ def apply_deeplinkerp_settings_branding():
 	frappe.cache.delete_key("bootinfo")
 	frappe.clear_cache()
 
+
+
+def apply_framework_desktop_icon_branding():
+	if not frappe.db.exists("Desktop Icon", DLP_FRAMEWORK_NAME):
+		icon = frappe.new_doc("Desktop Icon")
+		icon.update(
+			{
+				"doctype": "Desktop Icon",
+				"name": DLP_FRAMEWORK_NAME,
+				"label": DLP_FRAMEWORK_NAME,
+				"app": "deeplinkerp_branding",
+				"hidden": 0,
+				"icon_type": "App",
+				"idx": DLP_FRAMEWORK_IDX,
+				"link": "/desk/build",
+				"link_type": "External",
+				"logo_url": BRAND_LOGO_URL,
+				"standard": 1,
+			}
+		)
+		icon.flags.ignore_permissions = True
+		icon.insert(ignore_permissions=True, ignore_if_duplicate=True)
+
+	frappe.db.set_value(
+		"Desktop Icon",
+		DLP_FRAMEWORK_NAME,
+		{
+			"app": "deeplinkerp_branding",
+			"hidden": 0,
+			"icon_type": "App",
+			"idx": DLP_FRAMEWORK_IDX,
+			"label": DLP_FRAMEWORK_NAME,
+			"link": "/desk/build",
+			"link_type": "External",
+			"logo_url": BRAND_LOGO_URL,
+			"standard": 1,
+		},
+		update_modified=False,
+	)
+
+	if frappe.db.exists("Desktop Icon", FRAMEWORK_ICON_NAME):
+		frappe.db.set_value(
+			"Desktop Icon",
+			FRAMEWORK_ICON_NAME,
+			{"hidden": 1, "idx": HIDDEN_FRAMEWORK_IDX},
+			update_modified=False,
+		)
+
+	children = frappe.get_all("Desktop Icon", filters={"parent_icon": FRAMEWORK_ICON_NAME}, pluck="name")
+	for child in children:
+		frappe.db.set_value("Desktop Icon", child, "parent_icon", DLP_FRAMEWORK_NAME, update_modified=False)
 
 def apply_logo_branding():
 	for doctype in ("System Settings", "Website Settings"):
@@ -137,10 +190,18 @@ def apply_boot_branding(bootinfo):
 	for icon in bootinfo.get("desktop_icons", []):
 		if icon.get("parent_icon") == ERP_NEXT_NAME:
 			icon["parent_icon"] = BRAND_NAME
-		elif icon.get("parent_icon") == FRAPPE_FRAMEWORK_NAME:
+		elif icon.get("parent_icon") in {FRAPPE_FRAMEWORK_NAME, FRAMEWORK_ICON_NAME}:
 			icon["parent_icon"] = DLP_FRAMEWORK_NAME
 		elif icon.get("parent_icon") in PRODUCT_APP_BY_TITLE:
 			icon["parent_icon"] = BRAND_NAME
+
+		if icon.get("name") == FRAMEWORK_ICON_NAME or icon.get("label") == FRAMEWORK_ICON_NAME:
+			icon["hidden"] = 1
+		elif icon.get("name") == DLP_FRAMEWORK_NAME or icon.get("label") == DLP_FRAMEWORK_NAME:
+			icon["app"] = "deeplinkerp_branding"
+			icon["hidden"] = 0
+			icon["label"] = DLP_FRAMEWORK_NAME
+			icon["logo_url"] = BRAND_LOGO_URL
 
 
 def append_unique(values, value):
