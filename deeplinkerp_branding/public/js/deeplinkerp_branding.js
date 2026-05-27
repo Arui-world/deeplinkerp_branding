@@ -9,6 +9,7 @@
 	const FrappeFrameworkName = "Frappe Framework";
 	const DLPFrameworkName = "DLP Framework";
 
+
 	function replaceERPNextAppTitle() {
 		if (!window.frappe?.boot) return;
 
@@ -189,7 +190,9 @@
 	}
 
 	if (window.frappe?.router?.on) {
-		frappe.router.on("change", applyBranding);
+		frappe.router.on("change", () => {
+			applyBranding();
+		});
 	}
 
 	if (window.frappe?.after_ajax) {
