@@ -2,7 +2,7 @@ import frappe
 
 
 BRAND_NAME = "Deeplinkerp"
-BRAND_LOGO_URL = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png"
+BRAND_LOGO_URL = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb"
 ERP_NEXT_NAME = "ERPNext"
 FRAPPE_FRAMEWORK_NAME = "Frappe Framework"
 DLP_FRAMEWORK_NAME = "DLP Framework"

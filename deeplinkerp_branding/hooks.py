@@ -4,9 +4,9 @@ app_publisher = "yuewei"
 app_description = "Deeplinkerp brand"
 app_email = "308642281@qq.com"
 app_license = "mit"
-app_logo_url = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png"
+app_logo_url = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb"
 favicon = "/assets/deeplinkerp_branding/logo/tab_logo.png"
-splash_image = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png"
+splash_image = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb"
 base_template = "deeplinkerp_branding/templates/deeplinkerp_branding_base.html"
 
 # Apps
@@ -15,7 +15,7 @@ base_template = "deeplinkerp_branding/templates/deeplinkerp_branding_base.html"
 add_to_apps_screen = [
 	{
 		"name": app_name,
-		"logo": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png",
+		"logo": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb",
 		"title": app_title,
 		"route": "/app/deeplinkerp-settings",
 	}
@@ -120,7 +120,7 @@ boot_session = "deeplinkerp_branding.deeplinkerp_branding.branding.apply_boot_br
 after_migrate = ["deeplinkerp_branding.deeplinkerp_branding.branding.apply_deeplinkerp_settings_branding"]
 website_context = {
 	"favicon": "/assets/deeplinkerp_branding/logo/tab_logo.png",
-	"splash_image": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png",
+	"splash_image": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb",
 }
 
 website_redirects = [
@@ -131,12 +131,12 @@ website_redirects = [
 	},
 	{
 		"source": "/apple-touch-icon.png",
-		"target": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png",
+		"target": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb",
 		"redirect_http_status": 302,
 	},
 	{
 		"source": "/apple-touch-icon-precomposed.png",
-		"target": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png",
+		"target": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb",
 		"redirect_http_status": 302,
 	},
 	{
