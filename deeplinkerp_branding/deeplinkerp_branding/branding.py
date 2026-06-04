@@ -4,11 +4,14 @@ import frappe
 BRAND_NAME = "Deeplinkerp"
 BRAND_LOGO_URL = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb"
 ERP_NEXT_NAME = "ERPNext"
+DEEPLINKERP_ICON_NAME = "Deeplinkerp"
 FRAPPE_FRAMEWORK_NAME = "Frappe Framework"
 DLP_FRAMEWORK_NAME = "DLP Framework"
 FRAMEWORK_ICON_NAME = "Framework"
+DLP_ERP_IDX = 0
 DLP_FRAMEWORK_IDX = -1
-HIDDEN_FRAMEWORK_IDX = -2
+SETTINGS_DOCNAME = "Deeplinkerp Settings"
+SETTINGS_LABEL = "Deeplinkerp Settings"
 PRODUCT_APP_NAMES = {"ai_assistant", "mes_integration"}
 PRODUCT_APP_BY_TITLE = {
 	"AI Assistant": "ai_assistant",
@@ -48,25 +51,23 @@ def apply_deeplinkerp_settings_branding():
 	"""Replace the ERPNext Settings desktop entry with Deeplinkerp Settings."""
 	apply_logo_branding()
 
-	if frappe.db.exists("Desktop Icon", "ERPNext Settings"):
-		frappe.db.set_value("Desktop Icon", "ERPNext Settings", "hidden", 1, update_modified=False)
-
 	if frappe.db.exists("Desktop Icon", "Deeplinkerp Branding"):
 		frappe.db.set_value("Desktop Icon", "Deeplinkerp Branding", "hidden", 1, update_modified=False)
 
+	apply_erpnext_desktop_icon_branding()
 	apply_framework_desktop_icon_branding()
 
 	copy_erpnext_settings_sidebar_items()
 
-	if frappe.db.exists("Desktop Icon", "Deeplinkerp Settings"):
+	if frappe.db.exists("Desktop Icon", SETTINGS_DOCNAME):
 		frappe.db.set_value(
 			"Desktop Icon",
-			"Deeplinkerp Settings",
+			SETTINGS_DOCNAME,
 			{
 				"app": "deeplinkerp_branding",
 				"hidden": 0,
 				"icon_type": "Link",
-				"link_to": "Deeplinkerp Settings",
+				"link_to": SETTINGS_DOCNAME,
 				"link_type": "Workspace Sidebar",
 				"logo_url": "/assets/erpnext/icons/desktop_icons/solid/erpnext_settings.svg",
 				"standard": 1,
@@ -75,25 +76,74 @@ def apply_deeplinkerp_settings_branding():
 			update_modified=False,
 		)
 
-	if frappe.db.exists("Workspace", "Deeplinkerp Settings"):
+	if frappe.db.exists("Workspace", SETTINGS_DOCNAME):
 		frappe.db.set_value(
 			"Workspace",
-			"Deeplinkerp Settings",
-			{"app": "deeplinkerp_branding", "label": "Deeplinkerp Settings", "title": "Deeplinkerp Settings"},
+			SETTINGS_DOCNAME,
+			{"app": "deeplinkerp_branding", "label": SETTINGS_LABEL, "title": SETTINGS_LABEL},
 			update_modified=False,
 		)
 
-	if frappe.db.exists("Workspace Sidebar", "Deeplinkerp Settings"):
+	if frappe.db.exists("Workspace Sidebar", SETTINGS_DOCNAME):
 		frappe.db.set_value(
 			"Workspace Sidebar",
-			"Deeplinkerp Settings",
-			{"app": "deeplinkerp_branding", "standard": 1, "title": "Deeplinkerp Settings"},
+			SETTINGS_DOCNAME,
+			{"app": "deeplinkerp_branding", "standard": 1, "title": SETTINGS_LABEL},
 			update_modified=False,
 		)
 
 	frappe.cache.delete_key("desktop_icons")
 	frappe.cache.delete_key("bootinfo")
 	frappe.clear_cache()
+
+
+def apply_erpnext_desktop_icon_branding():
+	if not frappe.db.exists("Desktop Icon", DEEPLINKERP_ICON_NAME):
+		icon = frappe.new_doc("Desktop Icon")
+		icon.update(
+			{
+				"doctype": "Desktop Icon",
+				"name": DEEPLINKERP_ICON_NAME,
+				"label": BRAND_NAME,
+				"app": "deeplinkerp_branding",
+				"hidden": 1,
+				"icon_type": "App",
+				"idx": DLP_ERP_IDX,
+				"link": "/desk/home",
+				"link_type": "External",
+				"logo_url": BRAND_LOGO_URL,
+				"standard": 1,
+			}
+		)
+		icon.flags.ignore_permissions = True
+		icon.insert(ignore_permissions=True, ignore_if_duplicate=True)
+
+	frappe.db.set_value(
+		"Desktop Icon",
+		DEEPLINKERP_ICON_NAME,
+		{
+			"app": "deeplinkerp_branding",
+			"hidden": 1,
+			"icon_type": "App",
+			"idx": DLP_ERP_IDX,
+			"label": BRAND_NAME,
+			"link": "/desk/home",
+			"link_type": "External",
+			"logo_url": BRAND_LOGO_URL,
+			"standard": 1,
+		},
+		update_modified=False,
+	)
+
+	children = frappe.get_all(
+		"Desktop Icon", filters={"parent_icon": ["in", [ERP_NEXT_NAME, DEEPLINKERP_ICON_NAME]]}, pluck="name"
+	)
+	for child in children:
+		frappe.db.set_value("Desktop Icon", child, "parent_icon", "", update_modified=False)
+
+	for icon_name in (ERP_NEXT_NAME, "ERPNext Settings"):
+		if frappe.db.exists("Desktop Icon", icon_name):
+			frappe.delete_doc("Desktop Icon", icon_name, force=1, ignore_permissions=True)
 
 
 
@@ -135,17 +185,12 @@ def apply_framework_desktop_icon_branding():
 		update_modified=False,
 	)
 
-	if frappe.db.exists("Desktop Icon", FRAMEWORK_ICON_NAME):
-		frappe.db.set_value(
-			"Desktop Icon",
-			FRAMEWORK_ICON_NAME,
-			{"hidden": 1, "idx": HIDDEN_FRAMEWORK_IDX},
-			update_modified=False,
-		)
-
 	children = frappe.get_all("Desktop Icon", filters={"parent_icon": FRAMEWORK_ICON_NAME}, pluck="name")
 	for child in children:
 		frappe.db.set_value("Desktop Icon", child, "parent_icon", DLP_FRAMEWORK_NAME, update_modified=False)
+
+	if frappe.db.exists("Desktop Icon", FRAMEWORK_ICON_NAME):
+		frappe.delete_doc("Desktop Icon", FRAMEWORK_ICON_NAME, force=1, ignore_permissions=True)
 
 def apply_logo_branding():
 	for doctype in ("System Settings", "Website Settings"):
@@ -188,14 +233,25 @@ def apply_boot_branding(bootinfo):
 			sidebar["app"] = PRODUCT_MODULE_APP_KEYS[key]
 
 	for icon in bootinfo.get("desktop_icons", []):
-		if icon.get("parent_icon") == ERP_NEXT_NAME:
-			icon["parent_icon"] = BRAND_NAME
+		if icon.get("parent_icon") in {ERP_NEXT_NAME, DEEPLINKERP_ICON_NAME}:
+			icon["parent_icon"] = ""
 		elif icon.get("parent_icon") in {FRAPPE_FRAMEWORK_NAME, FRAMEWORK_ICON_NAME}:
 			icon["parent_icon"] = DLP_FRAMEWORK_NAME
 		elif icon.get("parent_icon") in PRODUCT_APP_BY_TITLE:
 			icon["parent_icon"] = BRAND_NAME
 
-		if icon.get("name") == FRAMEWORK_ICON_NAME or icon.get("label") == FRAMEWORK_ICON_NAME:
+		if icon.get("name") == ERP_NEXT_NAME or icon.get("label") == ERP_NEXT_NAME:
+			icon["hidden"] = 1
+		elif icon.get("name") == DEEPLINKERP_ICON_NAME or icon.get("label") == BRAND_NAME:
+			icon["app"] = "deeplinkerp_branding"
+			icon["hidden"] = 1
+			icon["label"] = BRAND_NAME
+			icon["logo_url"] = BRAND_LOGO_URL
+			icon["link"] = "/desk/home"
+			icon["link_type"] = "External"
+		elif icon.get("name") == "ERPNext Settings" or icon.get("label") == "ERPNext Settings":
+			icon["hidden"] = 1
+		elif icon.get("name") == FRAMEWORK_ICON_NAME or icon.get("label") == FRAMEWORK_ICON_NAME:
 			icon["hidden"] = 1
 		elif icon.get("name") == DLP_FRAMEWORK_NAME or icon.get("label") == DLP_FRAMEWORK_NAME:
 			icon["app"] = "deeplinkerp_branding"
@@ -209,15 +265,16 @@ def append_unique(values, value):
 		values.append(value)
 
 
+
 def copy_erpnext_settings_sidebar_items():
 	if not (
 		frappe.db.exists("Workspace Sidebar", "ERPNext Settings")
-		and frappe.db.exists("Workspace Sidebar", "Deeplinkerp Settings")
+		and frappe.db.exists("Workspace Sidebar", SETTINGS_DOCNAME)
 	):
 		return
 
 	source = frappe.get_doc("Workspace Sidebar", "ERPNext Settings")
-	target = frappe.get_doc("Workspace Sidebar", "Deeplinkerp Settings")
+	target = frappe.get_doc("Workspace Sidebar", SETTINGS_DOCNAME)
 
 	target.set("items", [])
 	for source_item in source.items:

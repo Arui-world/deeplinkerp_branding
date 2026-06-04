@@ -1,0 +1,21 @@
+{
+ "app": "deeplinkerp_branding",
+ "bg_color": "gray",
+ "creation": "2026-06-04 13:59:10.446772",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 1,
+ "icon_type": "App",
+ "idx": 0,
+ "label": "Deeplinkerp",
+ "link": "/desk/home",
+ "link_type": "External",
+ "logo_url": "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb",
+ "modified": "2026-06-04 13:59:10.446772",
+ "modified_by": "Administrator",
+ "name": "Deeplinkerp",
+ "owner": "Administrator",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}

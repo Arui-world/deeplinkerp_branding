@@ -8,31 +8,35 @@
 	const ProductSidebarSubtitles = new Set(["AI Assistant", "Mes Integration", "MES Integration", "MES Integration Log"]);
 	const FrappeFrameworkName = "Frappe Framework";
 	const DLPFrameworkName = "DLP Framework";
+	const translate = (text) => (typeof window.__ === "function" ? __(text) : text);
+	const getBrandName = () => translate(DeeplinkERPBrandName);
+	const getSettingsName = () => translate(DeeplinkERPSettingsName);
+	const getFrameworkName = () => translate(DLPFrameworkName);
 
 
 	function replaceERPNextAppTitle() {
 		if (!window.frappe?.boot) return;
 
 		(frappe.boot.app_data || []).forEach((app) => {
-			if (app.app_name === "erpnext" || app.app_title === ERPNextBrandName) {
-				app.app_title = DeeplinkERPBrandName;
+			if (app.app_name === "erpnext" || app.app_title === ERPNextBrandName || app.app_title === DeeplinkERPBrandName) {
+				app.app_title = getBrandName();
 			}
-			if (app.app_name === "frappe" || app.app_title === FrappeFrameworkName) {
-				app.app_title = DLPFrameworkName;
+			if (app.app_name === "frappe" || app.app_title === FrappeFrameworkName || app.app_title === DLPFrameworkName) {
+				app.app_title = getFrameworkName();
 			}
 			if (ProductAppNames.has(app.app_name)) {
-				app.app_title = DeeplinkERPBrandName;
+				app.app_title = getBrandName();
 			}
 		});
 
 		if (frappe.current_app?.app_name === "erpnext") {
-			frappe.current_app.app_title = DeeplinkERPBrandName;
+			frappe.current_app.app_title = getBrandName();
 		}
 		if (frappe.current_app?.app_name === "frappe") {
-			frappe.current_app.app_title = DLPFrameworkName;
+			frappe.current_app.app_title = getFrameworkName();
 		}
 		if (ProductAppNames.has(frappe.current_app?.app_name)) {
-			frappe.current_app.app_title = DeeplinkERPBrandName;
+			frappe.current_app.app_title = getBrandName();
 		}
 	}
 
@@ -41,8 +45,8 @@
 
 		const settingsSidebar = frappe.boot.workspace_sidebar_item?.["erpnext settings"];
 		if (settingsSidebar) {
-			settingsSidebar.label = DeeplinkERPSettingsName;
-			settingsSidebar.title = DeeplinkERPSettingsName;
+			settingsSidebar.label = getSettingsName();
+			settingsSidebar.title = getSettingsName();
 		}
 
 		Object.entries(frappe.boot.workspace_sidebar_item || {}).forEach(([key, sidebar]) => {
@@ -67,8 +71,8 @@
 				workspace.label === ERPNextSettingsName ||
 				workspace.title === ERPNextSettingsName
 			) {
-				workspace.label = DeeplinkERPSettingsName;
-				workspace.title = DeeplinkERPSettingsName;
+				workspace.label = getSettingsName();
+				workspace.title = getSettingsName();
 			}
 		});
 	}
@@ -96,30 +100,33 @@
 
 	function replaceVisibleBranding() {
 		const replacements = {
-			[ERPNextBrandName]: DeeplinkERPBrandName,
-			[ERPNextSettingsName]: DeeplinkERPSettingsName,
-			[FrappeFrameworkName]: DLPFrameworkName,
+			[ERPNextBrandName]: getBrandName(),
+			[DeeplinkERPBrandName]: getBrandName(),
+			[ERPNextSettingsName]: getSettingsName(),
+			[DeeplinkERPSettingsName]: getSettingsName(),
+			[FrappeFrameworkName]: getFrameworkName(),
+			[DLPFrameworkName]: getFrameworkName(),
 		};
 
-		if (frappe.app?.sidebar?.header_subtitle === FrappeFrameworkName) {
-			frappe.app.sidebar.header_subtitle = DLPFrameworkName;
+		if (frappe.app?.sidebar?.header_subtitle === FrappeFrameworkName || frappe.app?.sidebar?.header_subtitle === DLPFrameworkName) {
+			frappe.app.sidebar.header_subtitle = getFrameworkName();
 		}
 		if (ProductSidebarSubtitles.has(frappe.app?.sidebar?.header_subtitle)) {
-			frappe.app.sidebar.header_subtitle = DeeplinkERPBrandName;
+			frappe.app.sidebar.header_subtitle = getBrandName();
 		}
 
 		document.querySelectorAll(".title-container").forEach((container) => {
 			const title = container.querySelector(".header-title")?.textContent.trim();
 			const subtitle = container.querySelector(".header-subtitle");
 			if (subtitle && ProductSidebarTitles.has(title)) {
-				subtitle.textContent = DeeplinkERPBrandName;
+				subtitle.textContent = getBrandName();
 			}
 		});
 
 		document.querySelectorAll(".header-subtitle").forEach((subtitle) => {
 			const text = subtitle.textContent.trim();
-			if (text === ERPNextBrandName || ProductSidebarSubtitles.has(text)) subtitle.textContent = DeeplinkERPBrandName;
-			if (text === FrappeFrameworkName) subtitle.textContent = DLPFrameworkName;
+			if (text === ERPNextBrandName || ProductSidebarSubtitles.has(text)) subtitle.textContent = getBrandName();
+			if (text === FrappeFrameworkName || text === DLPFrameworkName) subtitle.textContent = getFrameworkName();
 		});
 
 		replaceTextContent(
@@ -151,8 +158,8 @@
 		const originalChooseAppName = frappe.ui.Sidebar.prototype.choose_app_name;
 		frappe.ui.Sidebar.prototype.choose_app_name = function (...args) {
 			const result = originalChooseAppName.apply(this, args);
-			if (this.header_subtitle === FrappeFrameworkName) {
-				this.header_subtitle = DLPFrameworkName;
+			if (this.header_subtitle === FrappeFrameworkName || this.header_subtitle === DLPFrameworkName) {
+				this.header_subtitle = getFrameworkName();
 			}
 			if (
 				ProductSidebarTitles.has(this.sidebar_title) ||
@@ -160,7 +167,7 @@
 				ProductSidebarSubtitles.has(this.header_subtitle) ||
 				ProductAppNames.has(frappe.current_app?.app_name)
 			) {
-				this.header_subtitle = DeeplinkERPBrandName;
+				this.header_subtitle = getBrandName();
 			}
 			return result;
 		};
