@@ -12,6 +12,7 @@ DLP_ERP_IDX = 0
 DLP_FRAMEWORK_IDX = -1
 SETTINGS_DOCNAME = "Deeplinkerp Settings"
 SETTINGS_LABEL = "Deeplinkerp Settings"
+SETTINGS_ICON_URL = "/assets/erpnext/icons/desktop_icons/solid/erpnext_settings.svg"
 PRODUCT_APP_NAMES = {"ai_assistant", "mes_integration"}
 PRODUCT_APP_BY_TITLE = {
 	"AI Assistant": "ai_assistant",
@@ -56,25 +57,9 @@ def apply_deeplinkerp_settings_branding():
 
 	apply_erpnext_desktop_icon_branding()
 	apply_framework_desktop_icon_branding()
+	apply_settings_desktop_icon_branding()
 
 	copy_erpnext_settings_sidebar_items()
-
-	if frappe.db.exists("Desktop Icon", SETTINGS_DOCNAME):
-		frappe.db.set_value(
-			"Desktop Icon",
-			SETTINGS_DOCNAME,
-			{
-				"app": "deeplinkerp_branding",
-				"hidden": 0,
-				"icon_type": "Link",
-				"link_to": SETTINGS_DOCNAME,
-				"link_type": "Workspace Sidebar",
-				"logo_url": "/assets/erpnext/icons/desktop_icons/solid/erpnext_settings.svg",
-				"standard": 1,
-				"idx": 10,
-			},
-			update_modified=False,
-		)
 
 	if frappe.db.exists("Workspace", SETTINGS_DOCNAME):
 		frappe.db.set_value(
@@ -145,6 +130,45 @@ def apply_erpnext_desktop_icon_branding():
 		if frappe.db.exists("Desktop Icon", icon_name):
 			frappe.delete_doc("Desktop Icon", icon_name, force=1, ignore_permissions=True)
 
+
+
+def apply_settings_desktop_icon_branding():
+	if not frappe.db.exists("Desktop Icon", SETTINGS_DOCNAME):
+		icon = frappe.new_doc("Desktop Icon")
+		icon.update(
+			{
+				"doctype": "Desktop Icon",
+				"name": SETTINGS_DOCNAME,
+				"label": SETTINGS_LABEL,
+				"app": "deeplinkerp_branding",
+				"hidden": 0,
+				"icon_type": "Link",
+				"idx": 10,
+				"link_to": SETTINGS_DOCNAME,
+				"link_type": "Workspace Sidebar",
+				"logo_url": SETTINGS_ICON_URL,
+				"standard": 1,
+			}
+		)
+		icon.flags.ignore_permissions = True
+		icon.insert(ignore_permissions=True, ignore_if_duplicate=True)
+
+	frappe.db.set_value(
+		"Desktop Icon",
+		SETTINGS_DOCNAME,
+		{
+			"app": "deeplinkerp_branding",
+			"hidden": 0,
+			"icon_type": "Link",
+			"label": SETTINGS_LABEL,
+			"idx": 10,
+			"link_to": SETTINGS_DOCNAME,
+			"link_type": "Workspace Sidebar",
+			"logo_url": SETTINGS_ICON_URL,
+			"standard": 1,
+		},
+		update_modified=False,
+	)
 
 
 def apply_framework_desktop_icon_branding():

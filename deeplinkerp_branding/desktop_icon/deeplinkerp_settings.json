@@ -1,0 +1,17 @@
+{
+ "app": "deeplinkerp_branding",
+ "bg_color": "gray",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon_type": "Link",
+ "idx": 10,
+ "label": "Deeplinkerp Settings",
+ "link_to": "Deeplinkerp Settings",
+ "link_type": "Workspace Sidebar",
+ "logo_url": "/assets/erpnext/icons/desktop_icons/solid/erpnext_settings.svg",
+ "name": "Deeplinkerp Settings",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}
