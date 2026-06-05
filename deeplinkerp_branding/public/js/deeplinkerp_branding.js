@@ -8,35 +8,39 @@
 	const ProductSidebarSubtitles = new Set(["AI Assistant", "Mes Integration", "MES Integration", "MES Integration Log"]);
 	const FrappeFrameworkName = "Frappe Framework";
 	const DLPFrameworkName = "DLP Framework";
-	const translate = (text) => (typeof window.__ === "function" ? __(text) : text);
+	const translate = (text) => (typeof window.__ === "function" ? window.__(text) : text);
 	const getBrandName = () => translate(DeeplinkERPBrandName);
 	const getSettingsName = () => translate(DeeplinkERPSettingsName);
 	const getFrameworkName = () => translate(DLPFrameworkName);
-
+	let eventsBound = false;
 
 	function replaceERPNextAppTitle() {
 		if (!window.frappe?.boot) return;
 
 		(frappe.boot.app_data || []).forEach((app) => {
+			const brandName = getBrandName();
+			const frameworkName = getFrameworkName();
 			if (app.app_name === "erpnext" || app.app_title === ERPNextBrandName || app.app_title === DeeplinkERPBrandName) {
-				app.app_title = getBrandName();
+				if (app.app_title !== brandName) app.app_title = brandName;
 			}
 			if (app.app_name === "frappe" || app.app_title === FrappeFrameworkName || app.app_title === DLPFrameworkName) {
-				app.app_title = getFrameworkName();
+				if (app.app_title !== frameworkName) app.app_title = frameworkName;
 			}
 			if (ProductAppNames.has(app.app_name)) {
-				app.app_title = getBrandName();
+				if (app.app_title !== brandName) app.app_title = brandName;
 			}
 		});
 
+		const brandName = getBrandName();
+		const frameworkName = getFrameworkName();
 		if (frappe.current_app?.app_name === "erpnext") {
-			frappe.current_app.app_title = getBrandName();
+			if (frappe.current_app.app_title !== brandName) frappe.current_app.app_title = brandName;
 		}
 		if (frappe.current_app?.app_name === "frappe") {
-			frappe.current_app.app_title = getFrameworkName();
+			if (frappe.current_app.app_title !== frameworkName) frappe.current_app.app_title = frameworkName;
 		}
 		if (ProductAppNames.has(frappe.current_app?.app_name)) {
-			frappe.current_app.app_title = getBrandName();
+			if (frappe.current_app.app_title !== brandName) frappe.current_app.app_title = brandName;
 		}
 	}
 
@@ -44,9 +48,10 @@
 		if (!window.frappe?.boot) return;
 
 		const settingsSidebar = frappe.boot.workspace_sidebar_item?.["erpnext settings"];
+		const settingsName = getSettingsName();
 		if (settingsSidebar) {
-			settingsSidebar.label = getSettingsName();
-			settingsSidebar.title = getSettingsName();
+			if (settingsSidebar.label !== settingsName) settingsSidebar.label = settingsName;
+			if (settingsSidebar.title !== settingsName) settingsSidebar.title = settingsName;
 		}
 
 		Object.entries(frappe.boot.workspace_sidebar_item || {}).forEach(([key, sidebar]) => {
@@ -71,16 +76,22 @@
 				workspace.label === ERPNextSettingsName ||
 				workspace.title === ERPNextSettingsName
 			) {
-				workspace.label = getSettingsName();
-				workspace.title = getSettingsName();
+				if (workspace.label !== settingsName) workspace.label = settingsName;
+				if (workspace.title !== settingsName) workspace.title = settingsName;
 			}
 		});
+	}
+
+	function addReplacement(replacements, source, target) {
+		if (source && target && source !== target) {
+			replacements[source] = target;
+		}
 	}
 
 	function replaceTextContent(selector, replacements) {
 		document.querySelectorAll(selector).forEach((element) => {
 			const text = element.textContent.trim();
-			if (replacements[text]) {
+			if (replacements[text] && replacements[text] !== text) {
 				element.textContent = replacements[text];
 			}
 		});
@@ -91,7 +102,7 @@
 		document.querySelectorAll("[title], [data-original-title], [aria-label], [alt]").forEach((element) => {
 			attributes.forEach((attribute) => {
 				const value = element.getAttribute(attribute);
-				if (replacements[value]) {
+				if (replacements[value] && replacements[value] !== value) {
 					element.setAttribute(attribute, replacements[value]);
 				}
 			});
@@ -99,34 +110,40 @@
 	}
 
 	function replaceVisibleBranding() {
-		const replacements = {
-			[ERPNextBrandName]: getBrandName(),
-			[DeeplinkERPBrandName]: getBrandName(),
-			[ERPNextSettingsName]: getSettingsName(),
-			[DeeplinkERPSettingsName]: getSettingsName(),
-			[FrappeFrameworkName]: getFrameworkName(),
-			[DLPFrameworkName]: getFrameworkName(),
-		};
+		const replacements = {};
+		const brandName = getBrandName();
+		const settingsName = getSettingsName();
+		const frameworkName = getFrameworkName();
+		addReplacement(replacements, ERPNextBrandName, brandName);
+		addReplacement(replacements, DeeplinkERPBrandName, brandName);
+		addReplacement(replacements, ERPNextSettingsName, settingsName);
+		addReplacement(replacements, DeeplinkERPSettingsName, settingsName);
+		addReplacement(replacements, FrappeFrameworkName, frameworkName);
+		addReplacement(replacements, DLPFrameworkName, frameworkName);
 
-		if (frappe.app?.sidebar?.header_subtitle === FrappeFrameworkName || frappe.app?.sidebar?.header_subtitle === DLPFrameworkName) {
-			frappe.app.sidebar.header_subtitle = getFrameworkName();
+		if (window.frappe?.app?.sidebar?.header_subtitle === FrappeFrameworkName || window.frappe?.app?.sidebar?.header_subtitle === DLPFrameworkName) {
+			if (frappe.app.sidebar.header_subtitle !== frameworkName) frappe.app.sidebar.header_subtitle = frameworkName;
 		}
-		if (ProductSidebarSubtitles.has(frappe.app?.sidebar?.header_subtitle)) {
-			frappe.app.sidebar.header_subtitle = getBrandName();
+		if (ProductSidebarSubtitles.has(window.frappe?.app?.sidebar?.header_subtitle)) {
+			if (frappe.app.sidebar.header_subtitle !== brandName) frappe.app.sidebar.header_subtitle = brandName;
 		}
 
 		document.querySelectorAll(".title-container").forEach((container) => {
 			const title = container.querySelector(".header-title")?.textContent.trim();
 			const subtitle = container.querySelector(".header-subtitle");
-			if (subtitle && ProductSidebarTitles.has(title)) {
-				subtitle.textContent = getBrandName();
+			if (subtitle && ProductSidebarTitles.has(title) && subtitle.textContent.trim() !== brandName) {
+				subtitle.textContent = brandName;
 			}
 		});
 
 		document.querySelectorAll(".header-subtitle").forEach((subtitle) => {
 			const text = subtitle.textContent.trim();
-			if (text === ERPNextBrandName || ProductSidebarSubtitles.has(text)) subtitle.textContent = getBrandName();
-			if (text === FrappeFrameworkName || text === DLPFrameworkName) subtitle.textContent = getFrameworkName();
+			if ((text === ERPNextBrandName || ProductSidebarSubtitles.has(text)) && text !== brandName) {
+				subtitle.textContent = brandName;
+			}
+			if ((text === FrappeFrameworkName || text === DLPFrameworkName) && text !== frameworkName) {
+				subtitle.textContent = frameworkName;
+			}
 		});
 
 		replaceTextContent(
@@ -147,9 +164,13 @@
 	}
 
 	function applyBranding() {
-		replaceERPNextAppTitle();
-		replaceBootLabels();
-		replaceVisibleBranding();
+		try {
+			replaceERPNextAppTitle();
+			replaceBootLabels();
+			replaceVisibleBranding();
+		} catch (error) {
+			console.warn("Deeplinkerp branding failed to apply", error);
+		}
 	}
 
 	const BackButtonClass = "deeplinkerp-desk-back-button";
@@ -243,7 +264,13 @@
 	}
 
 	function patchSidebarSubtitle() {
-		if (!window.frappe?.ui?.Sidebar || frappe.ui.Sidebar.prototype.__deeplinkerpPatched) return;
+		if (
+			!window.frappe?.ui?.Sidebar ||
+			frappe.ui.Sidebar.prototype.__deeplinkerpPatched ||
+			typeof frappe.ui.Sidebar.prototype.choose_app_name !== "function"
+		) {
+			return;
+		}
 
 		const originalChooseAppName = frappe.ui.Sidebar.prototype.choose_app_name;
 		frappe.ui.Sidebar.prototype.choose_app_name = function (...args) {
@@ -264,49 +291,39 @@
 		frappe.ui.Sidebar.prototype.__deeplinkerpPatched = true;
 	}
 
-	function observeSidebarHeader() {
-		if (!document.body) return;
-
-		new MutationObserver(applyBranding).observe(document.body, {
-			childList: true,
-			subtree: true,
-			characterData: true,
-		});
-	}
-
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", () => {
-			patchSidebarSubtitle();
-			applyBranding();
-			setupBackButton();
-			observeSidebarHeader();
-		});
-	} else {
+	function refreshDeskEnhancements() {
 		patchSidebarSubtitle();
 		applyBranding();
 		setupBackButton();
-		observeSidebarHeader();
 	}
 
-	if (window.frappe?.router?.on) {
-		frappe.router.on("change", () => {
-			applyBranding();
-			setupBackButton();
-		});
+	function bindDeskEvents() {
+		if (eventsBound) return;
+		eventsBound = true;
+
+		if (window.frappe?.router?.on) {
+			frappe.router.on("change", refreshDeskEnhancements);
+		}
+
+		if (window.frappe?.after_ajax) {
+			frappe.after_ajax(refreshDeskEnhancements);
+		}
+
+		if (window.jQuery) {
+			jQuery(document).on("page-change form-refresh", refreshDeskEnhancements);
+		}
 	}
 
-	if (window.frappe?.after_ajax) {
-		frappe.after_ajax(() => {
-			applyBranding();
-			setupBackButton();
-		});
+	function initialize() {
+		refreshDeskEnhancements();
+		bindDeskEvents();
 	}
 
-	[100, 500, 1000, 2000].forEach((delay) => {
-		setTimeout(() => {
-			patchSidebarSubtitle();
-			applyBranding();
-			setupBackButton();
-		}, delay);
-	});
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", initialize);
+	} else {
+		initialize();
+	}
+
+	[100, 500, 1000, 2000].forEach((delay) => setTimeout(refreshDeskEnhancements, delay));
 })();

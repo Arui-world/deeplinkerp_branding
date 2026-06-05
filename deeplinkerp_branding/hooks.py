@@ -7,7 +7,6 @@ app_license = "mit"
 app_logo_url = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb"
 favicon = "/assets/deeplinkerp_branding/logo/tab_logo.png"
 splash_image = "/assets/deeplinkerp_branding/logo/deeplinkerp_logo_radius.png?v=erpnext-bg-067efb"
-base_template = "deeplinkerp_branding/templates/deeplinkerp_branding_base.html"
 
 # Apps
 # ------------------
