@@ -8,6 +8,7 @@ DEEPLINKERP_ICON_NAME = "Deeplinkerp"
 FRAPPE_FRAMEWORK_NAME = "Frappe Framework"
 DLP_FRAMEWORK_NAME = "DLP Framework"
 FRAMEWORK_ICON_NAME = "Framework"
+FRAPPE_FRAMEWORK_ICON_NAMES = (FRAMEWORK_ICON_NAME, FRAPPE_FRAMEWORK_NAME)
 DLP_ERP_IDX = 0
 DLP_FRAMEWORK_IDX = -1
 SETTINGS_DOCNAME = "Deeplinkerp Settings"
@@ -209,12 +210,13 @@ def apply_framework_desktop_icon_branding():
 		update_modified=False,
 	)
 
-	children = frappe.get_all("Desktop Icon", filters={"parent_icon": FRAMEWORK_ICON_NAME}, pluck="name")
+	children = frappe.get_all("Desktop Icon", filters={"parent_icon": ["in", FRAPPE_FRAMEWORK_ICON_NAMES]}, pluck="name")
 	for child in children:
 		frappe.db.set_value("Desktop Icon", child, "parent_icon", DLP_FRAMEWORK_NAME, update_modified=False)
 
-	if frappe.db.exists("Desktop Icon", FRAMEWORK_ICON_NAME):
-		frappe.delete_doc("Desktop Icon", FRAMEWORK_ICON_NAME, force=1, ignore_permissions=True)
+	for icon_name in FRAPPE_FRAMEWORK_ICON_NAMES:
+		if frappe.db.exists("Desktop Icon", icon_name):
+			frappe.delete_doc("Desktop Icon", icon_name, force=1, ignore_permissions=True)
 
 def apply_logo_branding():
 	for doctype in ("System Settings", "Website Settings"):
